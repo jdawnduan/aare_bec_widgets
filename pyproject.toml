@@ -1,0 +1,84 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aare_bec_widgets"
+version = "0.0.0"
+description = "A plugin repository for BEC"
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "copier",
+    "isort",
+    "coverage",
+    "pylint",
+    "pytest",
+    "pytest-random-order",
+    "ophyd_devices",
+    "bec_server",
+]
+
+[project.entry-points."bec"]
+plugin_bec = "aare_bec_widgets"
+
+[project.entry-points."bec.deployment.device_server"]
+plugin_ds_startup = "aare_bec_widgets.deployments.device_server.startup:run"
+
+[project.entry-points."bec.file_writer"]
+plugin_file_writer = "aare_bec_widgets.file_writer"
+
+[project.entry-points."bec.file_writer.storage_copy"]
+plugin_storage_copy = "aare_bec_widgets.file_writer.storage_copy:plugin_storage_copy"
+
+[project.entry-points."bec.scans"]
+plugin_scans = "aare_bec_widgets.scans"
+
+[project.entry-points."bec.scans.scan_modifier"]
+plugin_scan_modifier = "aare_bec_widgets.scans.scan_customization.scan_modifier"
+
+[project.entry-points."bec.scans.metadata_schema"]
+plugin_metadata_schema = "aare_bec_widgets.scans.metadata_schema"
+
+[project.entry-points."bec.ipython_client_startup"]
+plugin_ipython_client_pre = "aare_bec_widgets.bec_ipython_client.startup.pre_startup"
+plugin_ipython_client_post = "aare_bec_widgets.bec_ipython_client.startup"
+
+[project.entry-points."bec.widgets.auto_updates"]
+plugin_widgets_update = "aare_bec_widgets.bec_widgets.auto_updates"
+
+[project.entry-points."bec.widgets.user_widgets"]
+plugin_widgets = "aare_bec_widgets.bec_widgets.widgets"
+
+[tool.hatch.build.targets.wheel]
+include = ["*"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+
+[tool.black]
+line-length = 100
+skip-magic-trailing-comma = true
+
+[tool.pylint.basic]
+# Good variable names regexes, separated by a comma. If names match any regex,
+# they will always be accepted
+good-names-rgxs = [
+    ".*scanID.*",
+    ".*RID.*",
+    ".*pointID.*",
+    ".*ID.*",
+    ".*_2D.*",
+    ".*_1D.*",
+]

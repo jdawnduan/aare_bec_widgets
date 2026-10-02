@@ -1,0 +1,70 @@
+name: Create template upgrade PR for aare_bec_widgets
+on:
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  create_update_branch_and_pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create virtualenv
+        run: |
+          python -m virtualenv .venv
+
+      - name: Install tools
+        run: |
+          source .venv/bin/activate
+          pip install copier PySide6 bec_lib
+
+      - name: Perform update
+        run: |
+          source .venv/bin/activate
+          git config --global user.email "bec_ci_staging@psi.ch"
+          git config --global user.name "BEC automated CI"
+
+          branch="chore/update-template-$(python -m uuid)"
+          echo "switching to branch $branch"
+          git checkout -b $branch
+
+          echo "Running copier update..."
+          copier update --trust --defaults --conflict inline 2>&1 | tee copier.log
+          status=${PIPESTATUS[0]}
+          output="$(cat copier.log)"
+          echo $output
+          msg="$(printf '%s\n' "$output" | head -n 1)"
+
+          if ! grep -q "make_commit: true" .copier-answers.yml ; then
+            echo "Autocommit not made, committing..."
+            git add -A
+            git commit -a -m "$msg"
+          fi
+
+          if diff-index --quiet HEAD ; then
+            echo "No changes detected"
+            exit 0
+          fi
+
+          git push -u origin $branch
+          curl -X POST "https://gitea.psi.ch/api/v1/repos/${{ gitea.repository }}/pulls" \
+            -H "Authorization: token ${{ secrets.CI_REPO_WRITE }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+                  \"title\": \"Template: $(echo $msg)\",
+                  \"body\": \"This PR was created by Gitea Actions\",
+                  \"head\": \"$(echo $branch)\",
+                  \"base\": \"main\"
+                }"

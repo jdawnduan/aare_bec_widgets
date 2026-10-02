@@ -1,0 +1,113 @@
+name: CI for aare_bec_widgets
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      BEC_WIDGETS_BRANCH:
+        description: "Branch of BEC Widgets to install"
+        required: false
+        type: string
+        default: "main"
+      BEC_CORE_BRANCH:
+        description: "Branch of BEC Core to install"
+        required: false
+        type: string
+        default: "main"
+      OPHYD_DEVICES_BRANCH:
+        description: "Branch of Ophyd Devices to install"
+        required: false
+        type: string
+        default: "main"
+      BEC_PLUGIN_REPO_BRANCH:
+        description: "Branch of the BEC Plugin Repository to install"
+        required: false
+        type: string
+        default: "main"
+      PYTHON_VERSION:
+        description: "Python version to use"
+        required: false
+        type: string
+        default: "3.12"
+
+permissions:
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      QTWEBENGINE_DISABLE_SANDBOX: 1
+      QT_QPA_PLATFORM: "offscreen"
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ inputs.PYTHON_VERSION || '3.12' }}"
+
+      - name: Checkout BEC Plugin Repository
+        uses: actions/checkout@v4
+        with:
+          repository: bec/aare_bec_widgets
+          ref: "${{ inputs.BEC_PLUGIN_REPO_BRANCH || github.head_ref || github.sha }}"
+          path: ./aare_bec_widgets
+
+      - name: Lint for merge conflicts from template updates
+        shell: bash
+        # Find all Copier conflicts except this line
+        run: '! grep -r "<<<<<<< before updating" | grep -v "grep -r \"<<<<<<< before updating"'
+
+      - name: Checkout BEC Core
+        uses: actions/checkout@v4
+        with:
+          repository: bec/bec
+          ref: "${{ inputs.BEC_CORE_BRANCH || 'main' }}"
+          path: ./bec
+
+      - name: Checkout Ophyd Devices
+        uses: actions/checkout@v4
+        with:
+          repository: bec/ophyd_devices
+          ref: "${{ inputs.OPHYD_DEVICES_BRANCH || 'main' }}"
+          path: ./ophyd_devices
+
+      - name: Checkout BEC Widgets
+        uses: actions/checkout@v4
+        with:
+          repository: bec/bec_widgets
+          ref: "${{ inputs.BEC_WIDGETS_BRANCH || 'main' }}"
+          path: ./bec_widgets
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1 libegl1 x11-utils libxkbcommon-x11-0 libdbus-1-3 xvfb
+          sudo apt-get -y install libnss3 libxdamage1 libasound2t64 libatomic1 libxcursor1
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          pip install uv
+          uv pip install --system -e ./ophyd_devices
+          uv pip install --system -e ./bec/bec_lib[dev]
+          uv pip install --system -e ./bec/bec_ipython_client
+          uv pip install --system -e ./bec/bec_server[dev]
+          uv pip install --system -e ./bec_widgets[dev,pyside6]
+          uv pip install --system -e ./aare_bec_widgets[dev]
+
+      - name: Run Tests with Coverage
+        id: coverage
+        shell: bash
+        run: |
+          set +e
+          coverage run --branch --source=./aare_bec_widgets -m pytest --random-order ./aare_bec_widgets/tests/
+          status=$?
+          # Allow pytest exit code 5 so repositories without tests do not fail CI.
+          if [ "$status" -ne 0 ] && [ "$status" -ne 5 ]; then
+            exit "$status"
+          fi
+          if [ "$status" -eq 0 ]; then
+            coverage report
+          fi
