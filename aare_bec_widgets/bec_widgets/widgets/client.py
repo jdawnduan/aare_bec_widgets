@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from bec_lib.logger import bec_logger
-
 from bec_widgets.cli.rpc.rpc_base import RPCBase, rpc_call, rpc_timeout
 
 logger = bec_logger.logger
@@ -12,7 +11,7 @@ logger = bec_logger.logger
 # pylint: skip-file
 
 
-_Widgets = {}
+_Widgets = {"AareGridScanControl": "AareGridScanControl", "AareRasterPanel": "AareRasterPanel"}
 
 
 class AareDemoWidget(RPCBase):
@@ -22,6 +21,84 @@ class AareDemoWidget(RPCBase):
     def remove(self):
         """
         Cleanup the BECConnector
+        """
+
+    @rpc_call
+    def attach(self):
+        """
+        None
+        """
+
+    @rpc_call
+    def detach(self):
+        """
+        Detach the widget from its parent dock widget (if widget is in the dock), making it a floating widget.
+        """
+
+
+class AareGridScanControl(RPCBase):
+    """Raster (grid) scan control: two motors, element pitch, image time, grid elements -> scans.grid_scan."""
+
+    _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.grid_scan_control.grid_scan_control"
+
+    @rpc_call
+    def run(self):
+        """
+        Start the grid scan, centred on the current motor positions (relative, snaked).
+        """
+
+    @rpc_call
+    def abort(self):
+        """
+        Abort the running scan (whole queue, like BEC's stop button).
+        """
+
+    @rpc_call
+    def set_grid_from_pixels(
+        self,
+        x0: "float",
+        y0: "float",
+        x1: "float",
+        y1: "float",
+        um_per_px_x: "float" = 1.0,
+        um_per_px_y: "float" = 1.0,
+        beam_cx: "float" = 0.0,
+        beam_cy: "float" = 0.0,
+    ):
+        """
+        Take the grid from a rectangle drawn on the camera image (see AareRasterPanel).
+        """
+
+    @rpc_call
+    def attach(self):
+        """
+        None
+        """
+
+    @rpc_call
+    def detach(self):
+        """
+        Detach the widget from its parent dock widget (if widget is in the dock), making it a floating widget.
+        """
+
+
+class AareRasterPanel(RPCBase):
+    """Tab "Camera": `Image` on `<camera_device>.preview` with a rect ROI; tab "Raster": AareGridScanControl."""
+
+    _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.raster_panel.raster_panel"
+
+    @property
+    @rpc_call
+    def camera_device(self) -> "str":
+        """
+        Device whose `preview` signal is shown; its um_per_px_* / beam_center_* signals calibrate the ROI.
+        """
+
+    @camera_device.setter
+    @rpc_call
+    def camera_device(self) -> "str":
+        """
+        Device whose `preview` signal is shown; its um_per_px_* / beam_center_* signals calibrate the ROI.
         """
 
     @rpc_call

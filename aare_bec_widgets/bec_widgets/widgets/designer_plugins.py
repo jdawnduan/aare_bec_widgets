@@ -4,6 +4,15 @@ from __future__ import annotations
 
 # pylint: skip-file
 
-designer_plugins = {}
+designer_plugins = {
+    "AareGridScanControl": (
+        "aare_bec_widgets.bec_widgets.widgets.grid_scan_control.grid_scan_control",
+        "AareGridScanControl",
+    ),
+    "AareRasterPanel": (
+        "aare_bec_widgets.bec_widgets.widgets.raster_panel.raster_panel",
+        "AareRasterPanel",
+    ),
+}
 
-widget_icons = {}
+widget_icons = {"AareGridScanControl": "grid_on", "AareRasterPanel": "photo_camera"}
