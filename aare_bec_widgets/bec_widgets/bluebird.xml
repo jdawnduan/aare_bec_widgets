@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Bluebird: AareDAQ's Sunrise palette with the sky gradient flattened to its mid stop
+  (aare_suite/AareDAQ/src/aare/gui/styles.py, THEME_BLUEBIRD). Colors only; radii stock.
+  name="light" on purpose: bec_widgets compares app.theme.theme against "light"/"dark"
+  (crosshair, plot color offsets, dark-mode button), a third name would be treated as dark.
+  bec_qthemes parses colors with QColor(str): hex only, so AareDAQ's rgba() glass fills are
+  pre-blended over the sky (#adccf1) here.
+-->
+<theme name="light" mode="light">
+    <!-- PRIMARY / PRIMARY_HOVER / PRIMARY_TEXT -->
+    <color name="PRIMARY">#2563eb</color>
+    <color name="PRIMARY_LIGHT">#60a5fa</color>
+    <color name="PRIMARY_DARK">#1d4ed8</color>
+    <color name="ON_PRIMARY">#ffffff</color>
+    <!-- BACKGROUND_GRADIENT_MID: the flattened sky -->
+    <color name="BG">#adccf1</color>
+    <!-- SURFACE -->
+    <color name="CARD_BG">#f2f2f2</color>
+    <!-- INPUT_BG rgba(255,255,255,16%) over sky -->
+    <color name="FIELD_BG">#bad4f3</color>
+    <!-- BUTTON_BG rgba(255,255,255,50%) over sky -->
+    <color name="BUTTON_BG">#d6e6f8</color>
+    <!-- BUTTON_BORDER / FRAME_L3_COLOR -->
+    <color name="BORDER">#c9cfd8</color>
+    <color name="SEPARATOR">#c9cfd8</color>
+    <!-- TEXT -->
+    <color name="FG">#263043</color>
+    <!-- STATUS_IDLE_BG (alternating rows) -->
+    <color name="ALT_BG">#d9e2f2</color>
+    <!-- BANNER -->
+    <color name="HEADER_BG">#a2b7e4</color>
+    <!-- accents: PRIMARY, (stock, no AareDAQ equivalent), WARNING_TEXT, ERROR_TEXT, SUCCESS_TEXT -->
+    <color name="ACCENT_DEFAULT">#2563eb</color>
+    <color name="ACCENT_HIGHLIGHT">#B53565</color>
+    <color name="ACCENT_WARNING">#c05d2c</color>
+    <color name="ACCENT_EMERGENCY">#a3254a</color>
+    <color name="ACCENT_SUCCESS">#448441</color>
+    <!-- pyqtgraph: BACKGROUND / TEXT / SEPARATOR_IDLE. Plain + _LIGHT keys both read by bec_qthemes. -->
+    <color name="PLOT_BG">#e2e7ee</color>
+    <color name="PLOT_FG">#263043</color>
+    <color name="PLOT_LABEL">#263043</color>
+    <color name="PLOT_AXIS">#47536a</color>
+    <color name="PLOT_BG_LIGHT">#e2e7ee</color>
+    <color name="PLOT_FG_LIGHT">#263043</color>
+    <color name="PLOT_LABEL_LIGHT">#263043</color>
+    <color name="PLOT_AXIS_LIGHT">#47536a</color>
+    <color name="RADIUS_SMALL">4px</color>
+    <color name="RADIUS_MEDIUM">6px</color>
+    <color name="RADIUS_LARGE">9px</color>
+    <color name="CONTRAST_FACTOR">1.00</color>
+</theme>
