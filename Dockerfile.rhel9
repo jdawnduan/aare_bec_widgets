@@ -1,0 +1,79 @@
+# RHEL9-compatible dev container for aare_bec_widgets: redis + BEC server + Qt GUI, displayed via noVNC.
+# Ported from aare_suite/AareDAQ/Dockerfile.rhel9 (same reasons for rocky over UBI9, same X stack).
+# Must run as linux/amd64 (rhel9-gui.sh passes --platform): bec_widgets pins PySide6 6.11.1, whose
+# EL9-compatible wheel is manylinux_2_34 x86_64 only (aarch64 needs glibc 2.39 > EL9's 2.34) —
+# and the beamline consoles are x86_64 RHEL9 anyway.
+FROM rockylinux/rockylinux:9
+
+# python3.12 from AppStream: base image only has 3.9, bec needs >=3.11.
+# redis + tmux: `bec-server start --start-redis` shells out to `redis-server` and runs every service in a tmux pane.
+# mesa-dri-drivers: llvmpipe software GL so Qt's GL probe works under Xvnc.
+# procps-ng: pkill for the gui-replace logic in rhel9-gui.sh.
+# nss nspr alsa-lib libX*: QtWebEngine runtime — bec-app imports qtmonaco (QWebEngineView) at startup, no lazy path.
+RUN dnf install -y epel-release && \
+    dnf install -y \
+        python3.12 redis tmux procps-ng \
+        tigervnc-server-minimal openbox novnc \
+        mesa-libGL mesa-libEGL mesa-dri-drivers \
+        libxkbcommon-x11 libX11-xcb \
+        xcb-util xcb-util-cursor xcb-util-image xcb-util-keysyms xcb-util-renderutil xcb-util-wm \
+        dbus-libs dejavu-sans-fonts liberation-sans-fonts \
+        nss nspr alsa-lib libXcomposite libXdamage libXtst && \
+    dnf clean all
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Venv lives outside the bind mounts: both repos carry the Mac's own .venv.
+# QTWEBENGINE_DISABLE_SANDBOX: chromium sandbox refuses to run as root (only matters for the Website widget).
+ENV VIRTUAL_ENV=/opt/venv \
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_LINK_MODE=copy \
+    PATH=/opt/venv/bin:$PATH \
+    DISPLAY=:1 \
+    NO_AT_BRIDGE=1 \
+    QTWEBENGINE_DISABLE_SANDBOX=1
+
+COPY <<'EOF' /entrypoint.sh
+#!/bin/bash
+# X server + window manager + BEC server + noVNC; installs both repos into /opt/venv on first run.
+set -e
+mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
+# A hard container kill leaves a stale X lock -> Xvnc dies with "Server is already active for display 1".
+rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
+# SecurityTypes None is fine: rhel9-gui.sh publishes 6080 on 127.0.0.1 only, -localhost keeps raw VNC (5901) inside.
+Xvnc :1 -geometry 1920x1600 -depth 24 -SecurityTypes None -localhost &
+for _ in $(seq 50); do [ -e /tmp/.X11-unix/X1 ] && break; sleep 0.1; done
+openbox &
+# run (not just stat) the python: catches a stale venv left by a different image arch
+if ! /opt/venv/bin/python -c '' 2>/dev/null; then
+    echo ">>> first run: installing bec_widgets (editable) + aare_bec_widgets[dev] into /opt/venv (PyPI, ~2 min)"
+    uv venv --python /usr/bin/python3.12 /opt/venv
+    uv pip install -e /bec_widgets -e '/workspace[dev]'
+fi
+# bec-server writes ./data ./logs ./scripts into cwd -> keep that out of the bind mounts (same as dev.sh).
+# --interface tmux: skip the systemctl probe, there is no systemd in here.
+mkdir -p /tmp/bec_local && cd /tmp/bec_local
+# Demo config load is best-effort (|| echo): a failure here must never take noVNC down with it.
+bec-server start --start-redis --no-persistence --interface tmux && timeout 180 python - <<'PY' || \
+    echo ">>> BEC/demo config failed: ./rhel9-gui.sh bec to inspect, ./rhel9-gui.sh shell to retry"
+from bec_lib.client import BECClient
+c = BECClient(); c.start()
+try:
+    # bec-server start returns before DeviceServer listens; a config request sent that early gets no reply (302 s timeout)
+    c.wait_for_service("DeviceServer")
+    c.config.load_demo_config()
+    from pathlib import Path
+    from aare_bec_widgets import device_configs
+    c.config.add_to_session(str(Path(device_configs.__file__).with_name("demo_sample_camera.yaml")))
+finally:
+    c.shutdown()  # non-daemon client threads would otherwise keep python alive forever on error
+PY
+echo ">>> ready: open the noVNC URL printed by rhel9-gui.sh, then run ./rhel9-gui.sh gui"
+# websockify directly instead of the novnc_proxy wrapper: fewer moving parts, same result
+exec websockify --web /usr/share/novnc 6080 localhost:5901
+EOF
+RUN chmod +x /entrypoint.sh
+
+WORKDIR /workspace
+EXPOSE 6080
+ENTRYPOINT ["/entrypoint.sh"]
