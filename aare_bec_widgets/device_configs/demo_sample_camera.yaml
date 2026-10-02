@@ -1,0 +1,16 @@
+# Sample camera for the raster demo. Added on top of BEC's demo config by dev.sh / Dockerfile.rhel9.
+# Production: set deviceConfig.url and calibrate um_per_px_* / beam_center_* (signals, settable at runtime).
+# TODO(url): beamline stream not reachable from the dev box; fill in and verify there.
+#   zmq  (AareDAQ sample cam):  tcp://<host>:<port>
+#   Axis MJPEG:                 http://<axis-ip>/axis-cgi/mjpg/video.cgi?resolution=1280x720&fps=20&compression=30&camera=1
+samcam:
+  description: Sample camera (AareDAQ sample view) streamed into BEC as a 2D preview
+  deviceClass: aare_bec_widgets.devices.sample_camera.AareSampleCamera
+  deviceConfig:
+    url: null
+    fps: 5
+  readoutPriority: on_request
+  enabled: true
+  readOnly: false
+  deviceTags:
+    - camera
