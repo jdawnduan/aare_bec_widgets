@@ -1,0 +1,15 @@
+# Mock smargon omega rotation for the omega-control demo. Added on top of BEC's demo config by dev.sh.
+# No limits: omega is a continuous rotation axis, presets like +180 must work from any angle.
+# Production: replace deviceClass with the real EPICS motor (ophyd.EpicsMotor + prefix).
+smargon_omega:
+  description: Smargon goniometer omega rotation (deg)
+  deviceClass: ophyd_devices.SimPositioner
+  deviceConfig:
+    delay: 1
+    tolerance: 0.01
+    update_frequency: 400
+  readoutPriority: baseline
+  enabled: true
+  readOnly: false
+  deviceTags:
+    - smargon

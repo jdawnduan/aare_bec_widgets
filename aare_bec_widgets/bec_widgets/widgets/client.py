@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bec_lib.logger import bec_logger
+
 from bec_widgets.cli.rpc.rpc_base import RPCBase, rpc_call, rpc_timeout
 
 logger = bec_logger.logger
@@ -11,7 +12,11 @@ logger = bec_logger.logger
 # pylint: skip-file
 
 
-_Widgets = {"AareGridScanControl": "AareGridScanControl", "AareRasterPanel": "AareRasterPanel"}
+_Widgets = {
+    "AareGridScanControl": "AareGridScanControl",
+    "AareOmegaControl": "AareOmegaControl",
+    "AareRasterPanel": "AareRasterPanel",
+}
 
 
 class AareDemoWidget(RPCBase):
@@ -82,8 +87,46 @@ class AareGridScanControl(RPCBase):
         """
 
 
+class AareOmegaControl(RPCBase):
+    """Omega angle readback + presets (0 absolute, +/-10 +/-45 +/-90 +/-180 relative) for `smargon_omega`."""
+
+    _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.omega_control.omega_control"
+
+    @rpc_call
+    def move_to(self, degrees: "float"):
+        """
+        Move omega to an absolute angle in degrees.
+        """
+
+    @rpc_call
+    def move_by(self, degrees: "float"):
+        """
+        Rotate omega by `degrees` relative to the current position.
+        """
+
+    @rpc_call
+    def set_presets(self, presets: "list[tuple[str, float, bool]]"):
+        """
+        Rebuild the preset buttons from (label, degrees, relative) entries.
+
+        Absolute presets take a full row, relative ones go two per row so +x/-x sit side by side.
+        """
+
+    @rpc_call
+    def attach(self):
+        """
+        None
+        """
+
+    @rpc_call
+    def detach(self):
+        """
+        Detach the widget from its parent dock widget (if widget is in the dock), making it a floating widget.
+        """
+
+
 class AareRasterPanel(RPCBase):
-    """Tab "Camera": `Image` on `<camera_device>.preview` with a rect ROI; tab "Raster": AareGridScanControl."""
+    """Left: `Image` on `<camera_device>.preview` with a rect ROI. Right: AareGridScanControl fed by that ROI."""
 
     _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.raster_panel.raster_panel"
 

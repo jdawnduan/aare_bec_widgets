@@ -34,7 +34,8 @@ try:
     c.config.load_demo_config()
     from pathlib import Path
     from aare_bec_widgets import device_configs
-    c.config.add_to_session(str(Path(device_configs.__file__).with_name("demo_sample_camera.yaml")))
+    for name in ("demo_sample_camera.yaml", "smargon_omega.yaml"):
+        c.config.add_to_session(str(Path(device_configs.__file__).with_name(name)))
 finally:
     c.shutdown()  # non-daemon client threads would otherwise keep python alive forever on error
 PY
