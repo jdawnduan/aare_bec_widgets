@@ -9,10 +9,18 @@ designer_plugins = {
         "aare_bec_widgets.bec_widgets.widgets.grid_scan_control.grid_scan_control",
         "AareGridScanControl",
     ),
+    "AareOmegaControl": (
+        "aare_bec_widgets.bec_widgets.widgets.omega_control.omega_control",
+        "AareOmegaControl",
+    ),
     "AareRasterPanel": (
         "aare_bec_widgets.bec_widgets.widgets.raster_panel.raster_panel",
         "AareRasterPanel",
     ),
 }
 
-widget_icons = {"AareGridScanControl": "grid_on", "AareRasterPanel": "photo_camera"}
+widget_icons = {
+    "AareGridScanControl": "grid_on",
+    "AareOmegaControl": "rotate_right",
+    "AareRasterPanel": "photo_camera",
+}

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bec_lib.logger import bec_logger
+
 from bec_widgets.cli.rpc.rpc_base import RPCBase, rpc_call, rpc_timeout
 
 logger = bec_logger.logger
@@ -11,7 +12,11 @@ logger = bec_logger.logger
 # pylint: skip-file
 
 
-_Widgets = {"AareGridScanControl": "AareGridScanControl", "AareRasterPanel": "AareRasterPanel"}
+_Widgets = {
+    "AareGridScanControl": "AareGridScanControl",
+    "AareOmegaControl": "AareOmegaControl",
+    "AareRasterPanel": "AareRasterPanel",
+}
 
 
 class AareDemoWidget(RPCBase):
@@ -82,8 +87,98 @@ class AareGridScanControl(RPCBase):
         """
 
 
+class AareOmegaControl(RPCBase):
+    """Omega rotation of the SMARGON goniometer: live angle, go-to, stop and preset moves."""
+
+    _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.omega_control.omega_control"
+
+    @rpc_call
+    def remove(self):
+        """
+        Cleanup the BECConnector
+        """
+
+    @rpc_call
+    def attach(self):
+        """
+        None
+        """
+
+    @rpc_call
+    def detach(self):
+        """
+        Detach the widget from its parent dock widget (if widget is in the dock), making it a floating widget.
+        """
+
+    @property
+    @rpc_call
+    def device(self) -> "str":
+        """
+        Positioner driven by the widget (default: smargon_omega).
+        """
+
+    @device.setter
+    @rpc_call
+    def device(self) -> "str":
+        """
+        Positioner driven by the widget (default: smargon_omega).
+        """
+
+    @property
+    @rpc_call
+    def absolute_presets(self) -> "str":
+        """
+        Go-to angles in degrees, comma separated (``"0, 90"``); a list is accepted when setting.
+        """
+
+    @absolute_presets.setter
+    @rpc_call
+    def absolute_presets(self) -> "str":
+        """
+        Go-to angles in degrees, comma separated (``"0, 90"``); a list is accepted when setting.
+        """
+
+    @property
+    @rpc_call
+    def relative_presets(self) -> "str":
+        """
+        Step angles in degrees, comma separated (``"10, -10"``); a list is accepted when setting.
+        """
+
+    @relative_presets.setter
+    @rpc_call
+    def relative_presets(self) -> "str":
+        """
+        Step angles in degrees, comma separated (``"10, -10"``); a list is accepted when setting.
+        """
+
+    @rpc_call
+    def move_absolute(self, angle: "float") -> "None":
+        """
+        Rotate to ``angle``.
+
+        Args:
+            angle (float): target angle in degrees.
+        """
+
+    @rpc_call
+    def move_relative(self, delta: "float") -> "None":
+        """
+        Rotate by ``delta`` from the current position.
+
+        Args:
+            delta (float): signed step in degrees.
+        """
+
+    @rpc_call
+    def stop(self) -> "None":
+        """
+        Stop the rotation (same stop_devices message as BEC's PositionerBox).
+        """
+
+
 class AareRasterPanel(RPCBase):
-    """Tab "Camera": `Image` on `<camera_device>.preview` with a rect ROI; tab "Raster": AareGridScanControl."""
+    """Left: `Image` on `<camera_device>.preview` with a rect ROI. Right: AareGridScanControl fed by that ROI."""
 
     _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.raster_panel.raster_panel"
 

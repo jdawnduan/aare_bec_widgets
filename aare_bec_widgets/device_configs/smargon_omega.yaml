@@ -1,0 +1,19 @@
+# SMARGON omega rotation, simulated so the dev loop has an axis to turn. dev.sh / Dockerfile.rhel9
+# add it after BEC's demo config, like demo_sample_camera.yaml.
+# No limits on purpose: omega is a continuous rotation axis and SimPositioner treats (0, 0) as unlimited.
+# Production: swap deviceClass/deviceConfig for the EPICS motor record of the real axis, keep the name;
+# the widget only relies on the hinted readback and the motor_is_moving signal.
+smargon_omega:
+  description: SMARGON goniometer omega rotation (simulated)
+  deviceClass: ophyd_devices.SimPositioner
+  deviceConfig:
+    delay: 1  # a move takes distance / velocity (100 deg/s default), not zero time
+    precision: 2
+    tolerance: 0.01
+    update_frequency: 400
+  readoutPriority: baseline
+  enabled: true
+  readOnly: false
+  deviceTags:
+    - user motors
+    - smargon
