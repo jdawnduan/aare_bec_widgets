@@ -1,0 +1,13 @@
+{
+  "enabledPlugins": {
+    "bec-skills@bec-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "bec-skills": {
+      "source": {
+        "source": "github",
+        "repo": "bec-project/bec_skills"
+      }
+    }
+  }
+}
