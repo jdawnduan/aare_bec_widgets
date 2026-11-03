@@ -88,7 +88,7 @@ class AareGridScanControl(RPCBase):
 
 
 class AareOmegaControl(RPCBase):
-    """Omega rotation of the SMARGON goniometer: live angle, go-to, stop and preset moves."""
+    """Omega rotation of the MX sample stage (aerotech u axis): live angle, go-to, stop, named and preset moves."""
 
     _IMPORT_MODULE = "aare_bec_widgets.bec_widgets.widgets.omega_control.omega_control"
 
@@ -114,14 +114,14 @@ class AareOmegaControl(RPCBase):
     @rpc_call
     def device(self) -> "str":
         """
-        Positioner driven by the widget (default: smargon_omega).
+        Omega axis: flat BEC name or dotted sub-axis (default aerotech_u, i.e. aerotech.u).
         """
 
     @device.setter
     @rpc_call
     def device(self) -> "str":
         """
-        Positioner driven by the widget (default: smargon_omega).
+        Omega axis: flat BEC name or dotted sub-axis (default aerotech_u, i.e. aerotech.u).
         """
 
     @property
@@ -173,7 +173,9 @@ class AareOmegaControl(RPCBase):
     @rpc_call
     def stop(self) -> "None":
         """
-        Stop the rotation (same stop_devices message as BEC's PositionerBox).
+        Stop the rotation: BEC's stop_devices on the root device, as PositionerBox does.
+
+        The REST Aerotech controller has no stop endpoint, so on the beamline this is best effort.
         """
 
 

@@ -51,7 +51,7 @@ class AareOmegaControlPlugin(QDesignerCustomWidgetInterface):  # pragma: no cove
         return "AareOmegaControl"
 
     def toolTip(self):
-        return "Omega rotation of the SMARGON goniometer: live angle, go-to, stop and preset moves."
+        return "Omega rotation of the MX sample stage (aerotech u axis): live angle, go-to, stop, named and preset moves."
 
     def whatsThis(self):
         return self.toolTip()

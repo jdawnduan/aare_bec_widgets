@@ -1,0 +1,32 @@
+# Omega rotation for the dev loop, simulated. dev.sh / Dockerfile.rhel9 add it after BEC's demo config,
+# like demo_sample_camera.yaml.
+#
+# Beamline (X06SA / X06DA / X10SA): omega is the `u` axis of the `aerotech` REST device, see
+# pxii_bec/device_configs/pxii-devices.yaml:
+#   aerotech:
+#     deviceClass: pxii_bec.devices.aerotech.Aerotech
+#     deviceConfig: {prefix: http://mx-x10sa-queue-01:5234}
+#     userParameter: {u: {mount: 0, work: 0}, ...}
+# AareOmegaControl resolves `aerotech_u` to `dev.aerotech_u` (this file) or `dev.aerotech.u` (beamline),
+# so the same widget config works in both sessions. A flat SimPositioner is enough for the dev loop:
+# its readback key (`aerotech_u`) matches the one the real stage publishes for its sub-axis.
+# No limits on purpose: omega is a continuous rotation axis and SimPositioner treats (0, 0) as unlimited.
+aerotech_u:
+  description: Aerotech omega rotation axis (simulated, stands in for aerotech.u)
+  deviceClass: ophyd_devices.SimPositioner
+  deviceConfig:
+    delay: 1  # a move takes distance / velocity (100 deg/s default), not zero time
+    precision: 2  # the REST axis has tolerance 0.01 deg
+    tolerance: 0.01
+    update_frequency: 400
+  readoutPriority: baseline
+  enabled: true
+  readOnly: false
+  deviceTags:
+    - aerotech
+    - motors
+  # Named positions the widget renders as go-to buttons; the beamline keeps them under
+  # aerotech.userParameter.u, a flat positioner keeps them at top level.
+  userParameter:
+    mount: 0
+    work: 0
