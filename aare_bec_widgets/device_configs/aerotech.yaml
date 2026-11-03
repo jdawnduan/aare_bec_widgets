@@ -1,0 +1,29 @@
+# Sim stand-in for the X10SA `aerotech` entry in pxii_bec device_configs/pxii-devices.yaml, loaded by dev.sh /
+# Dockerfile.rhel9 on top of BEC's demo config. Same shape as production: omega is the sub-signal `u`, the
+# widget's absolute presets are the named positions under userParameter.u.
+# Production: deviceClass pxii_bec.devices.aerotech.Aerotech, deviceConfig.prefix http://mx-x10sa-queue-01:5234
+aerotech:
+  description: REST-based device which connects to AareScan and Aerotech
+  deviceClass: aare_bec_widgets.devices.sim_aerotech.SimAerotech
+  deviceConfig: {}
+  deviceTags:
+    - aerotech
+    - motors
+  enabled: true
+  onFailure: buffer
+  readoutPriority: baseline
+  readOnly: false
+  userParameter:
+    u:
+      mount: 0
+      work: 0
+    x:
+      in: 0.05999735
+      out: -10
+      safe: -50
+    y:
+      mount: -0.0
+      work: -0.03099898
+    z:
+      mount: 0
+      work: -0.0090031

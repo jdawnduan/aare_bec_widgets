@@ -51,7 +51,7 @@ class AareOmegaControlPlugin(QDesignerCustomWidgetInterface):  # pragma: no cove
         return "AareOmegaControl"
 
     def toolTip(self):
-        return "Omega angle readback + presets (0 absolute, +/-10 +/-45 +/-90 +/-180 relative) for `smargon_omega`."
+        return "Omega (aerotech.u) readback, go-to, stop and presets: userParameter positions + +/-10 +/-45 +/-90 +/-180."
 
     def whatsThis(self):
         return self.toolTip()
